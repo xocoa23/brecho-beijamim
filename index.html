@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brechó Beijamim</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="assets/flor_brechó_cortada_semfundo.png" alt="Flor do logo" class="logo-icon">
+                    <h2>Brechó Beijamim</h2>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#home" class="nav-link">Home</a></li>
+                    <li><a href="#produtos" class="nav-link">Produtos</a></li>
+                    <li><a href="#sobre" class="nav-link">Sobre</a></li>
+                    <li><a href="#contato" class="nav-link">Contato</a></li>
+                    <li><a href="#" class="nav-link" id="correios-track">Rastrear</a></li>
+                    <li>
+                        <a href="#" class="cart-icon" id="cart-toggle">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span class="cart-count">0</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Área Administrativa</h2>
+                <button class="close-modal" id="close-login-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">Usuário:</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Senha:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </form>
+                <div id="login-error" class="error-message" style="display: none;">
+                    Usuário ou senha incorretos!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="admin-panel hidden">
+        <div class="admin-header">
+            <h3>Painel Administrativo</h3>
+            <button id="minimize-admin" class="btn btn-outline" title="Minimizar"><i class="fas fa-minus"></i></button>
+        </div>
+        <div class="admin-content">
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <h4>Produtos Vendidos</h4>
+                    <span id="sold-count">0</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Produtos Disponíveis</h4>
+                    <span id="available-count">0</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Total de Produtos</h4>
+                    <span id="total-count">0</span>
+                </div>
+            </div>
+            <div class="admin-actions">
+                <button id="view-orders-btn" class="btn btn-outline">Ver Pedidos</button>
+                <button id="admin-settings-btn" class="btn btn-outline">Configurações</button>
+                <button id="add-product-btn" class="btn btn-primary">Adicionar Produto</button>
+            </div>
+            
+            
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Preço -->
+    <div id="price-edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Alterar Preço do Produto</h3>
+                <button class="close-modal" id="close-price-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="product-info">
+                    <h4 id="price-edit-product-name">Nome do Produto</h4>
+                    <p class="current-price">Preço atual: <span id="current-price-value">R$ 0,00</span></p>
+                </div>
+                <form id="price-edit-form">
+                    <div class="form-group">
+                        <label for="new-price">
+                            <i class="fas fa-dollar-sign"></i> Novo preço (R$):
+                        </label>
+                        <div class="price-input-container">
+                            <span class="currency-symbol">R$</span>
+                            <input type="number" id="new-price" name="new-price" step="0.01" min="0" placeholder="0,00" required>
+                        </div>
+                        <small class="form-help">Digite o novo valor do produto</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="cancel-price-edit">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Preço
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar Produto -->
+    <div id="add-product-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus"></i> Novo Produto</h3>
+                <button class="close-modal" id="close-add-product">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-product-form">
+                    <div class="form-group">
+                        <label for="ap-name">Nome</label>
+                        <input id="ap-name" name="name" type="text" placeholder="Nome do produto" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ap-price">Preço (R$)</label>
+                        <input id="ap-price" name="price" type="number" step="0.01" min="0" placeholder="0,00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ap-category">Categoria</label>
+                        <select id="ap-category" name="category" required>
+                            <option value="feminino">Feminino</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="acessorios">Acessórios</option>
+                            <option value="calcados">Calçados</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ap-image">Imagem (arquivo em assets/produtos ou icon:fa-hat-cowboy)</label>
+                        <input id="ap-image" name="image" type="text" placeholder="ex.: vestido1.jpg (será usado assets/produtos/vestido1.jpg) ou icon:fa-tshirt" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" id="cancel-add-product">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Produto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Moda Autêntica<br>& Sustentável</h1>
+                <p>Peças únicas cuidadosamente selecionadas para pessoas que valorizam elegância e sustentabilidade.</p>
+                <div class="hero-buttons">
+                    <a href="#produtos" class="btn btn-primary">Explorar Produtos</a>
+                    <a href="#sobre" class="btn btn-outline">Nossa História</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="image-placeholder">
+                    <img id="hero-topo-img" src="assets/imagem_topo.jpg" alt="Imagem do topo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Produtos em Destaque -->
+    <section id="produtos" class="produtos">
+        <div class="container">
+            <div class="section-header">
+                <h2>Produtos em Destaque</h2>
+                <p>Peças selecionadas especialmente para você</p>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filter-tabs">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="feminino">Feminino</button>
+                <button class="filter-btn" data-filter="masculino">Masculino</button>
+                <button class="filter-btn" data-filter="acessorios">Acessórios</button>
+            </div>
+
+            <!-- Grid de Produtos -->
+            <div class="produtos-grid">
+                <div class="produto-card" data-category="feminino">
+                    <div class="produto-image">
+                        <div class="image-placeholder">
+                            <i class="fas fa-female"></i>
+                        </div>
+                        <div class="produto-overlay">
+                            <button class="btn-quick-view">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="produto-info">
+                        <h3>Vestido Floral Romântico</h3>
+                        <p class="produto-price">R$ 89,90</p>
+                        <button class="btn-add-cart" data-id="1" data-name="Vestido Floral Romântico" data-price="89.90">
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+
+                <div class="produto-card" data-category="masculino">
+                    <div class="produto-image">
+                        <div class="image-placeholder">
+                            <i class="fas fa-male"></i>
+                        </div>
+                        <div class="produto-overlay">
+                            <button class="btn-quick-view">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="produto-info">
+                        <h3>Camisa Clássica</h3>
+                        <p class="produto-price">R$ 65,90</p>
+                        <button class="btn-add-cart" data-id="2" data-name="Camisa Clássica" data-price="65.90">
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+
+                <div class="produto-card" data-category="acessorios">
+                    <div class="produto-image">
+                        <div class="image-placeholder">
+                            <i class="fas fa-glasses"></i>
+                        </div>
+                        <div class="produto-overlay">
+                            <button class="btn-quick-view">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="produto-info">
+                        <h3>Óculos Retrô</h3>
+                        <p class="produto-price">R$ 45,90</p>
+                        <button class="btn-add-cart" data-id="3" data-name="Óculos Retrô" data-price="45.90">
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+
+                <div class="produto-card" data-category="feminino">
+                    <div class="produto-image">
+                        <div class="image-placeholder">
+                            <i class="fas fa-tshirt"></i>
+                        </div>
+                        <div class="produto-overlay">
+                            <button class="btn-quick-view">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="produto-info">
+                        <h3>Blusa Estampada</h3>
+                        <p class="produto-price">R$ 39,90</p>
+                        <button class="btn-add-cart" data-id="4" data-name="Blusa Estampada" data-price="39.90">
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+
+                <div class="produto-card" data-category="masculino">
+                    <div class="produto-image">
+                        <div class="image-placeholder">
+                            <i class="fas fa-vest"></i>
+                        </div>
+                        <div class="produto-overlay">
+                            <button class="btn-quick-view">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="produto-info">
+                        <h3>Colete Vintage</h3>
+                        <p class="produto-price">R$ 75,90</p>
+                        <button class="btn-add-cart" data-id="5" data-name="Colete Vintage" data-price="75.90">
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+
+                <div class="produto-card" data-category="acessorios">
+                    <div class="produto-image">
+                        <div class="image-placeholder">
+                            <i class="fas fa-hat-cowboy"></i>
+                        </div>
+                        <div class="produto-overlay">
+                            <button class="btn-quick-view">Ver Detalhes</button>
+                        </div>
+                    </div>
+                    <div class="produto-info">
+                        <h3>Chapéu Clássico</h3>
+                        <p class="produto-price">R$ 55,90</p>
+                        <button class="btn-add-cart" data-id="6" data-name="Chapéu Clássico" data-price="55.90">
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre -->
+    <section id="sobre" class="sobre">
+        <div class="container">
+            <div class="sobre-content">
+                <div class="sobre-text">
+                    <h2>Nossa História</h2>
+                    <p>Acreditamos que a moda pode ser sustentável, única e acessível. Cada peça em nossa coleção é cuidadosamente selecionada, garantindo qualidade e estilo.</p>
+                    <p>Nossa missão é conectar pessoas que valorizam a individualidade com peças que contam histórias e fazem a diferença no mundo.</p>
+                    <div class="sobre-features">
+                        <div class="feature">
+                            <i class="fas fa-leaf"></i>
+                            <h4>Sustentável</h4>
+                            <p>Moda consciente para um futuro melhor</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-gem"></i>
+                            <h4>Único</h4>
+                            <p>Peças exclusivas e atemporais</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-heart"></i>
+                            <h4>Cuidadoso</h4>
+                            <p>Cada item é tratado com carinho</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="sobre-image">
+                    <div class="image-placeholder">
+                        <img id="nossa-historia-img" src="assets/nossa-historia.jpg" alt="Imagem Nossa História">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contato -->
+    <section id="contato" class="contato">
+        <div class="container">
+            <div class="section-header">
+                <h2>Entre em Contato</h2>
+                <p>Estamos aqui para ajudar você</p>
+            </div>
+            <div class="contato-content">
+                <div class="contato-info">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="info-text">
+                            <h4>Telefone</h4>
+                            <p>(XX) XXXXX-XXXX</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="info-text">
+                            <h4>Email</h4>
+                            <p>seu-email@exemplo.com</p>
+                        </div>
+                    </div>
+                </div>
+                <form class="contato-form">
+                    <input id="contato-nome" name="nome" type="text" placeholder="Seu Nome" required>
+                    <input id="contato-email" name="email" type="email" placeholder="Seu Email" required>
+                    <input id="contato-telefone" name="telefone" type="tel" placeholder="Seu Telefone/WhatsApp" required>
+                    <input id="contato-assunto" name="assunto" type="text" placeholder="Assunto" required>
+                    <textarea id="contato-mensagem" name="mensagem" placeholder="Sua Mensagem" rows="5" required></textarea>
+                    <button type="submit" class="btn btn-primary">Enviar Mensagem</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Brechó Beijamim <img src="assets/flor_brechó_cortada_semfundo.png" alt="Flor do logo" class="footer-logo-icon"></h3>
+                    <p>Moda autêntica e sustentável</p>
+                    <div class="social-links">
+                        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Menu</h4>
+                        <a href="#home">Home</a>
+                        <a href="#produtos">Produtos</a>
+                        <a href="#sobre">Sobre</a>
+                        <a href="#contato">Contato</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>Categorias</h4>
+                        <a href="#">Feminino</a>
+                        <a href="#">Masculino</a>
+                        <a href="#">Acessórios</a>
+                        <a href="#">Calçados</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Brechó Beijamim. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal do Carrinho -->
+    <div class="cart-modal" id="cart-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Carrinho de Compras</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cart-items" id="cart-items">
+                    <p class="empty-cart">Seu carrinho está vazio</p>
+                </div>
+                <div class="cart-total">
+                    <div class="total-line">
+                        <span>Total: </span>
+                        <span class="total-price">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="clear-cart">Limpar Carrinho</button>
+                <button class="btn btn-primary" id="checkout">Finalizar Compra</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Pagamento -->
+    <div class="cart-modal" id="payment-modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Pagamento</h3>
+                <button class="close-payment-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="payment-section">
+                    <p><strong>Subtotal:</strong> <span id="payment-subtotal">R$ 0,00</span></p>
+                    <p><strong>Frete:</strong> <span id="payment-shipping">R$ 0,00</span></p>
+                    <p><strong>Total:</strong> <span id="payment-total">R$ 0,00</span></p>
+                    <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #eee;">
+                    <div id="shipping-form">
+                        <h4 style="margin-bottom: 0.5rem;">Endereço para Entrega</h4>
+                        <div class="form-row">
+                            <input id="ship-name" type="text" placeholder="Nome Completo" required>
+                            <input id="ship-email" type="email" placeholder="Email" required>
+                        </div>
+                        <div class="form-row">
+                            <input id="ship-phone" type="text" placeholder="Telefone/WhatsApp" style="grid-column: 1 / -1;" required>
+                        </div>
+                        <div class="form-row">
+                            <input id="ship-cep" type="text" placeholder="CEP" required>
+                            <input id="ship-uf" type="text" placeholder="UF" maxlength="2" required>
+                        </div>
+                        <div class="form-row">
+                            <input id="ship-city" type="text" placeholder="Cidade" required>
+                            <input id="ship-neighborhood" type="text" placeholder="Bairro" required>
+                        </div>
+                        <div class="form-row">
+                            <input id="ship-street" type="text" placeholder="Rua" required>
+                            <input id="ship-number" type="text" placeholder="Número" required>
+                        </div>
+                        <input id="ship-complement" type="text" placeholder="Complemento (opcional)">
+                        <div style="margin-top: 0.75rem; display:flex; gap: 0.5rem; align-items:center; flex-wrap: wrap;">
+                            <button id="calc-shipping" class="btn btn-outline" type="button">Calcular Frete</button>
+                            <span id="shipping-status" style="color:#666; font-size:0.95rem;"></span>
+                        </div>
+                        <div id="shipping-options" style="margin-top: 0.75rem;"></div>
+                    </div>
+                    <div id="order-summary" style="margin-top: 1rem;">
+                        <strong>Resumo do pedido:</strong>
+                        <ul id="order-items" style="margin-top: 0.5rem; padding-left: 1.2rem;"></ul>
+                    </div>
+                    <div id="pix-area" style="margin-top:1rem; display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
+                        <button id="generate-pix" class="btn btn-primary" type="button">Gerar QR Code Pix</button>
+                        <div id="pix-display" style="display:none;">
+                            <img id="pix-qr" alt="QR Code Pix" style="width:160px; height:160px; border-radius:8px; border:2px solid #eee; background:#fafafa; object-fit:contain;">
+                            <div style="margin-top:0.5rem;">
+                                <small id="pix-status" style="color:#666;">Aguardando geração do QR...</small>
+                            </div>
+                            <textarea id="pix-brcode" readonly style="margin-top:0.5rem; width:100%; max-width:320px; height:80px; padding:8px; border:2px solid #eee; border-radius:8px; font-family:monospace; display:none;"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="back-to-cart">Voltar ao Carrinho</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <!-- Menu de contexto do vendedor (restaurado) -->
+    <div id="admin-context" class="admin-context-menu hidden">
+        <button type="button" data-action="edit-price">Alterar valor</button>
+        <button type="button" data-action="mark-sold">Marcar como vendido</button>
+    </div>
+
+    <!-- Badge do modo vendedor (restaurado) -->
+    <div id="admin-badge" class="admin-mode-badge hidden">Modo vendedor ativo</div>
+
+</body>
+</html> 
