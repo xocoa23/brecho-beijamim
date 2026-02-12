@@ -1394,7 +1394,7 @@ function handleLogout() {
     // Mostrar confirmação
     if (confirm('Tem certeza que deseja sair da área administrativa?')) {
         // Logout confirmado
-        console.log('Logout realizado com sucesso');
+        // Logout realizado
     }
 }
 
@@ -1456,7 +1456,7 @@ function enableProductEditing() {
     // Adicionar indicador visual nos produtos
     addEditingIndicators();
     
-    console.log('Funcionalidades de edição ativadas');
+    // Funcionalidades de edição ativadas
 }
 
 // Desativar funcionalidades de edição
@@ -1467,7 +1467,7 @@ function disableProductEditing() {
     // Remover indicadores visuais
     removeEditingIndicators();
     
-    console.log('Funcionalidades de edição desativadas');
+    // Funcionalidades de edição desativadas
 }
 
 // Adicionar indicadores visuais de edição
